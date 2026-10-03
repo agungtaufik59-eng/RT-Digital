@@ -115,6 +115,7 @@
   </div>
 
   <script>
+    // ===== SPLASH SCREEN =====
     const splash = document.getElementById('splash');
     const frame = document.getElementById('appFrame');
 
@@ -129,9 +130,9 @@
     frame.addEventListener('load', () => {
       setTimeout(hideSplash, 400);
     });
-
     setTimeout(hideSplash, 4000);
 
+    // ===== SERVICE WORKER =====
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js')
@@ -139,6 +140,52 @@
           .catch(err => console.log('[PWA] SW gagal:', err));
       });
     }
+
+    // ============================================================
+    // ============ BACK BUTTON GUARD (TOP WINDOW) ================
+    // ============================================================
+    // Chrome PWA standalone: history top window tipis.
+    // Kita "kunci" top window dengan state guard, lalu terus
+    // re-push setiap kali user tekan back. Iframe diberi tahu
+    // lewat postMessage agar dia bisa navigasi internal.
+    // ============================================================
+
+    // Push 1 initial state
+    try { history.pushState({ appGuard: 1 }, ''); } catch(e) {}
+
+    // Flag agar parent tahu kapan boleh keluar
+    let allowExit = false;
+
+    // Intercept back button
+    window.addEventListener('popstate', function(e) {
+      if (allowExit) {
+        // Iframe sudah bilang "user boleh keluar", biarkan
+        return;
+      }
+
+      // Re-push guard SEGERA
+      try { history.pushState({ appGuard: 1 }, ''); } catch(err) {}
+
+      // Beritahu iframe: parent baru saja kena back
+      try {
+        if (frame && frame.contentWindow) {
+          frame.contentWindow.postMessage({ type: 'parentBack' }, '*');
+        }
+      } catch(err) {
+        console.warn('[PWA] postMessage gagal:', err);
+      }
+    });
+
+    // Terima pesan dari iframe
+    window.addEventListener('message', function(e) {
+      if (!e.data || !e.data.type) return;
+
+      if (e.data.type === 'allowExit') {
+        // Iframe mengizinkan user keluar (mereka sedang di home)
+        allowExit = true;
+        setTimeout(() => { allowExit = false; }, 1500);
+      }
+    });
   </script>
 </body>
 </html>
