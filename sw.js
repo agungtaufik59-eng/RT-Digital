@@ -1,4 +1,4 @@
-const CACHE_NAME = 'rt-digital-v1';
+const CACHE_NAME = 'rt-digital-v2';
 const urlsToCache = [
   './',
   './index.html',
@@ -11,7 +11,7 @@ const urlsToCache = [
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
-      console.log('[SW] Cache dibuka');
+      console.log('[SW] Cache dibuka:', CACHE_NAME);
       return cache.addAll(urlsToCache);
     })
   );
@@ -36,23 +36,24 @@ self.addEventListener('activate', event => {
   self.clients.claim();
 });
 
-// ===== FETCH: cache-first untuk aset, network-first untuk GAS =====
+// ===== FETCH: cache-first untuk aset, biarkan GAS fresh =====
 self.addEventListener('fetch', event => {
   const url = event.request.url;
 
   // Jangan cache request ke Google Apps Script (biar selalu fresh)
   if (url.indexOf('script.google.com') >= 0 ||
-      url.indexOf('googleusercontent.com') >= 0) {
-    return; // biarkan default network
+      url.indexOf('googleusercontent.com') >= 0 ||
+      url.indexOf('google.com') >= 0) {
+    return;
   }
 
-  // Jangan cache request non-GET
+  // Hanya cache request GET
   if (event.request.method !== 'GET') return;
 
   event.respondWith(
     caches.match(event.request).then(cached => {
       if (cached) {
-        // Cache hit → return cache + refresh di background (stale-while-revalidate)
+        // Cache hit → return cache + refresh di background
         fetch(event.request)
           .then(res => {
             if (res && res.status === 200) {
