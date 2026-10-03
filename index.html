@@ -144,27 +144,33 @@
     // ============================================================
     // ============ BACK BUTTON GUARD (TOP WINDOW) ================
     // ============================================================
-    // Chrome PWA standalone: history top window tipis.
-    // Kita "kunci" top window dengan state guard, lalu terus
-    // re-push setiap kali user tekan back. Iframe diberi tahu
-    // lewat postMessage agar dia bisa navigasi internal.
+    // Gunakan location.hash (bukan pushState) karena lebih reliable
+    // di PWA standalone Android. Setiap hash unik = entry baru.
     // ============================================================
 
-    // Push 1 initial state
-    try { history.pushState({ appGuard: 1 }, ''); } catch(e) {}
-
-    // Flag agar parent tahu kapan boleh keluar
+    let guardCounter = 0;
     let allowExit = false;
+
+    function pushGuard() {
+      guardCounter++;
+      try {
+        // Hash unik setiap kali → browser WAJIB buat history entry baru
+        location.hash = '#guard-' + guardCounter + '-' + Date.now();
+      } catch(e) { /* silent */ }
+    }
+
+    // Push guard pertama saat app load
+    pushGuard();
 
     // Intercept back button
     window.addEventListener('popstate', function(e) {
       if (allowExit) {
-        // Iframe sudah bilang "user boleh keluar", biarkan
+        // Iframe sudah bilang user boleh keluar
         return;
       }
 
       // Re-push guard SEGERA
-      try { history.pushState({ appGuard: 1 }, ''); } catch(err) {}
+      pushGuard();
 
       // Beritahu iframe: parent baru saja kena back
       try {
@@ -181,9 +187,13 @@
       if (!e.data || !e.data.type) return;
 
       if (e.data.type === 'allowExit') {
-        // Iframe mengizinkan user keluar (mereka sedang di home)
         allowExit = true;
-        setTimeout(() => { allowExit = false; }, 1500);
+        // Tunggu sebentar lalu reset — supaya user bisa back untuk keluar
+        setTimeout(() => {
+          allowExit = false;
+          // Re-arm guard kalau user tidak jadi keluar
+          pushGuard();
+        }, 1500);
       }
     });
   </script>
