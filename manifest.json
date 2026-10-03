@@ -1,7 +1,7 @@
 {
-  "id": "/rtdigital-warga/",
-  "name": "RT Digital - Sistem Informasi Warga",
-  "short_name": "RT Digital",
+  "id": "/rt-warga-app-v2/",
+  "name": "RT Warga Digital",
+  "short_name": "RT Warga",
   "description": "Aplikasi manajemen RT: iuran, surat, kas, kampanye, dan data warga",
   "start_url": "./index.html",
   "scope": "./",
