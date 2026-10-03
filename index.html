@@ -42,7 +42,6 @@
       background: #F5F7FA;
     }
 
-    /* Splash screen saat loading pertama */
     .splash {
       position: absolute;
       inset: 0;
@@ -116,7 +115,6 @@
   </div>
 
   <script>
-    // Sembunyikan splash setelah iframe load (maks 4 detik)
     const splash = document.getElementById('splash');
     const frame = document.getElementById('appFrame');
 
@@ -132,10 +130,8 @@
       setTimeout(hideSplash, 400);
     });
 
-    // Fallback: kalau iframe lambat, paksa hilang setelah 4 detik
     setTimeout(hideSplash, 4000);
 
-    // Register service worker
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js')
