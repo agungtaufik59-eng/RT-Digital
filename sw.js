@@ -1,4 +1,4 @@
-const CACHE_NAME = 'rt-digital-v3';
+const CACHE_NAME = 'rt-digital-v5';
 const urlsToCache = [
   './',
   './index.html',
