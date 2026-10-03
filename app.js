@@ -198,6 +198,13 @@ function invalidateKeuangan(){
 
 // ============ API WRAPPER (fetch ke GAS JSON API) ============
 async function api(fn, ...args) {
+  // Auto-detect: kalau arg pertama = session.token, buang dari args
+  // (karena token sudah otomatis dikirim di body)
+  let filteredArgs = args;
+  if (args.length > 0 && session && args[0] === session.token) {
+    filteredArgs = args.slice(1);
+  }
+
   try {
     const res = await fetch(GAS_URL, {
       method: 'POST',
@@ -205,7 +212,7 @@ async function api(fn, ...args) {
       body: JSON.stringify({
         fn: fn,
         token: (session && session.token) || '',
-        args: args
+        args: filteredArgs
       }),
       redirect: 'follow'
     });
@@ -216,7 +223,6 @@ async function api(fn, ...args) {
 
     const data = await res.json();
 
-    // Null-safe: kalau server tidak balas object
     if (!data || typeof data !== 'object') {
       return { ok: false, msg: 'Respons tidak valid dari server' };
     }
