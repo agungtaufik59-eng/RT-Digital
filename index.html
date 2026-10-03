@@ -1,189 +1,170 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
+  <base target="_top">
+  <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>RT Digital - Sistem Informasi Warga</title>
+  <title>RT Warga Digital</title>
 
+  <!-- PWA -->
   <link rel="icon" type="image/png" href="icon-512.png">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#1976D2">
   <link rel="apple-touch-icon" href="icon-192.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="RT Digital">
+  <meta name="apple-mobile-web-app-title" content="RT Warga">
 
-  <style>
-    *{box-sizing:border-box}
-    body, html {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      background: #F5F7FA;
-      overflow: hidden;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    .app-wrapper {
-      position: relative;
-      width: 100%;
-      height: 100%;
-    }
-
-    iframe {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      border: none;
-      display: block;
-      background: #F5F7FA;
-    }
-
-    .splash {
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(135deg, #1976D2 0%, #0D47A1 100%);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 16px;
-      z-index: 10;
-      transition: opacity .4s ease;
-    }
-    .splash.hidden {
-      opacity: 0;
-      pointer-events: none;
-    }
-    .splash-logo {
-      width: 88px;
-      height: 88px;
-      border-radius: 22px;
-      background: rgba(255,255,255,.18);
-      backdrop-filter: blur(8px);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 40px;
-      font-weight: 800;
-      color: #fff;
-      letter-spacing: -1px;
-      box-shadow: 0 8px 24px rgba(0,0,0,.2);
-    }
-    .splash-title {
-      color: #fff;
-      font-size: 22px;
-      font-weight: 700;
-      letter-spacing: -.3px;
-    }
-    .splash-sub {
-      color: rgba(255,255,255,.75);
-      font-size: 12px;
-      font-weight: 400;
-      margin-top: -10px;
-    }
-    .splash-spinner {
-      width: 28px;
-      height: 28px;
-      border: 3px solid rgba(255,255,255,.25);
-      border-top-color: #fff;
-      border-radius: 50%;
-      animation: splashSpin .8s linear infinite;
-      margin-top: 12px;
-    }
-    @keyframes splashSpin {
-      to { transform: rotate(360deg); }
-    }
-  </style>
+  <!-- Styles -->
+  <link rel="stylesheet" href="app.css">
 </head>
 <body>
-  <div class="app-wrapper">
-    <div class="splash" id="splash">
-      <div class="splash-logo">RT</div>
-      <div class="splash-title">RT Digital</div>
-      <div class="splash-sub">Sistem Informasi Warga</div>
-      <div class="splash-spinner"></div>
-    </div>
 
-    <iframe id="appFrame"
-            src="https://script.google.com/macros/s/AKfycbwG7Uzrv0gyqqNM78D6cvBvs1tjAn937XyAqUb6cTXrGwNRjiIwaftnYo2QPKQ24h1t/exec"
-            allow="fullscreen; clipboard-read; clipboard-write">
-    </iframe>
+  <!-- ============ BOOT LOADER ============ -->
+  <div id="bootLoader" style="position:fixed;inset:0;background:linear-gradient(135deg,#1976D2,#0D47A1);
+       display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;gap:16px;
+       z-index:999999;transition:opacity .3s">
+    <div style="width:72px;height:72px;background:rgba(255,255,255,.18);border-radius:20px;
+         display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:800;
+         letter-spacing:-1px;color:#fff">RT</div>
+    <div style="font-size:18px;font-weight:700;letter-spacing:-0.3px">RT Warga Digital</div>
+    <div style="font-size:12px;opacity:.75;margin-top:-10px">Sistem Informasi Warga</div>
+    <div style="width:28px;height:28px;border:3px solid rgba(255,255,255,.25);
+         border-top-color:#fff;border-radius:50%;animation:bootSpin .8s linear infinite;margin-top:6px"></div>
+    <style>@keyframes bootSpin{to{transform:rotate(360deg)}}</style>
   </div>
 
-  <script>
-    // ===== SPLASH SCREEN =====
-    const splash = document.getElementById('splash');
-    const frame = document.getElementById('appFrame');
+  <!-- ===== PHONE FRAME (aktif hanya di desktop) ===== -->
+  <div id="phoneWrapper">
+    <div class="phone-notch"></div>
 
-    let splashHidden = false;
-    function hideSplash() {
-      if (splashHidden) return;
-      splashHidden = true;
-      splash.classList.add('hidden');
-      setTimeout(() => splash.remove(), 500);
-    }
+    <!-- ============ LOGIN ============ -->
+    <div id="loginScreen" class="screen">
+      <div class="login-box">
+        <div class="logo">🏘️</div>
+        <h1>RT Warga Digital</h1>
+        <p class="subtitle">Sistem Informasi Warga</p>
+        <div class="field">
+          <label>Nomor HP</label>
+          <input type="tel" id="loginPhone" placeholder="08xxxxxxxxxx" autocomplete="tel">
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <input type="password" id="loginPwd" placeholder="••••••••">
+        </div>
+        <button class="btn primary block" id="btnLogin">Masuk</button>
+        <p class="hint">Perumahan <b>KAMILAN CIRACAS PERMAI</b>
+      </div>
+    </div>
 
-    frame.addEventListener('load', () => {
-      setTimeout(hideSplash, 400);
-    });
-    setTimeout(hideSplash, 4000);
+    <!-- ============ APP ============ -->
+    <div id="appScreen" class="screen">
+      <header class="app-bar">
+        <div class="app-bar-title">
+          <span id="pageTitle">Beranda</span>
+          <span id="rtLabel" class="rt-label"></span>
+        </div>
+        <button class="icon-btn" id="btnRefresh" title="Muat ulang">⟳</button>
+      </header>
 
-    // ===== SERVICE WORKER =====
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js')
-          .then(reg => console.log('[PWA] SW terdaftar:', reg.scope))
-          .catch(err => console.log('[PWA] SW gagal:', err));
-      });
-    }
+      <!-- BANNER: aplikasi sedang memuat (dengan progress) -->
+      <div id="prefetchBanner" class="prefetch-banner hidden">
+        <div class="pf-info">
+          <div class="pf-spinner"></div>
+          <span class="pf-text">Aplikasi sedang memuat data...</span>
+          <span class="pf-pct">0%</span>
+        </div>
+        <div class="pf-progress">
+          <div class="pf-progress-bar" id="pfBar" style="width:0%"></div>
+        </div>
+      </div>
 
-    // ============================================================
-    // ============ BACK BUTTON GUARD (TOP WINDOW) ================
-    // ============================================================
+      <main id="mainContent"></main>
 
-    // Push initial guard
-    try { history.pushState({ appGuard: 1 }, ''); } catch(e) {}
+      <nav class="bottom-nav">
+        <button class="nav-btn active" data-page="home">
+          <span class="nav-icon">🏠</span><span>Beranda</span>
+        </button>
+        <button class="nav-btn" data-page="iuran">
+          <span class="nav-icon">💰</span><span>Iuran</span>
+        </button>
+        <button class="nav-btn" data-page="surat">
+          <span class="nav-icon">📄</span><span>Surat</span>
+        </button>
+        <button class="nav-btn" data-page="profil">
+          <span class="nav-icon">👤</span><span>Profil</span>
+        </button>
+      </nav>
+    </div>
 
-    let exitApproved = false;
+    <!-- ============ OVERLAYS ============ -->
+    <div id="loading" class="loading hidden"><div class="spinner"></div></div>
+    <div id="toast" class="toast"></div>
 
-    // Intercept back button
-    window.addEventListener('popstate', function(e) {
-      if (exitApproved) {
-        // User sudah konfirmasi keluar → biarkan
-        return;
-      }
+    <!-- ============ MODAL ============ -->
+    <div id="modal" class="modal hidden">
+      <div class="modal-content">
+        <div class="modal-head">
+          <h3 id="modalTitle">Form</h3>
+          <button class="icon-btn" id="modalClose">✕</button>
+        </div>
+        <div id="modalBody"></div>
+      </div>
+    </div>
 
-      // Re-push guard SEGERA agar tidak close
-      try { history.pushState({ appGuard: 1 }, ''); } catch(err) {}
+    <!-- ============ CONFIRM DIALOG ============ -->
+    <div id="confirmDialog" class="cfm-overlay hidden">
+      <div class="cfm-box">
+        <div class="cfm-icon" id="cfmIcon">❓</div>
+        <h3 class="cfm-title" id="cfmTitle">Konfirmasi</h3>
+        <p class="cfm-message" id="cfmMessage">Apakah Anda yakin?</p>
+        <div class="cfm-actions">
+          <button class="cfm-btn cancel" id="cfmBtnCancel">Batal</button>
+          <button class="cfm-btn confirm" id="cfmBtnConfirm">Oke</button>
+        </div>
+      </div>
+    </div>
 
-      // Beritahu iframe: parent baru saja kena back
-      try {
-        if (frame && frame.contentWindow) {
-          frame.contentWindow.postMessage({ type: 'parentBack' }, '*');
-        }
-      } catch(err) {
-        console.warn('[PWA] postMessage gagal:', err);
-      }
-    });
+    <!-- ============ PROMPT DIALOG ============ -->
+    <div id="promptDialog" class="cfm-overlay hidden">
+      <div class="cfm-box">
+        <div class="cfm-icon" id="prmIcon">✏️</div>
+        <h3 class="cfm-title" id="prmTitle">Input</h3>
+        <p class="cfm-message" id="prmMessage">Masukkan nilai:</p>
+        <input type="text" class="cfm-input" id="prmInput" placeholder="">
+        <div class="cfm-actions">
+          <button class="cfm-btn cancel" id="prmBtnCancel">Batal</button>
+          <button class="cfm-btn confirm" id="prmBtnConfirm">Oke</button>
+        </div>
+      </div>
+    </div>
 
-    // Terima pesan dari iframe
-    window.addEventListener('message', function(e) {
-      if (!e.data || !e.data.type) return;
+    <!-- ============ ALERT DIALOG ============ -->
+    <div id="alertDialog" class="cfm-overlay hidden">
+      <div class="cfm-box">
+        <div class="cfm-icon" id="altIcon">ℹ️</div>
+        <h3 class="cfm-title" id="altTitle">Info</h3>
+        <p class="cfm-message" id="altMessage"></p>
+        <div class="cfm-actions single">
+          <button class="cfm-btn confirm" id="altBtnOk">Oke</button>
+        </div>
+      </div>
+    </div>
 
-      if (e.data.type === 'approveExit') {
-        // Iframe sudah konfirmasi keluar
-        exitApproved = true;
-        try { history.back(); } catch(err) {}
-        // Fallback: coba tutup
-        setTimeout(function() {
-          try { window.close(); } catch(err) {}
-        }, 300);
-      }
-    });
-  </script>
+    <!-- ============ PROCESS DIALOG ============ -->
+    <div id="processDialog" class="cfm-overlay hidden">
+      <div class="cfm-box process-box">
+        <div class="process-icon" id="processIcon">
+          <div class="process-spinner"></div>
+        </div>
+        <h3 class="cfm-title" id="processTitle">Memproses...</h3>
+        <p class="cfm-message" id="processMessage">Mohon tunggu sebentar</p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Scripts -->
+  <script src="app.js"></script>
 </body>
 </html>
