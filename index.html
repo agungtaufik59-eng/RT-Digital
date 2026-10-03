@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>RT Digital - Sistem Informasi Warga</title>
+
+  <link rel="icon" type="image/png" href="icon-512.png">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#1976D2">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="RT Digital">
+
+  <style>
+    *{box-sizing:border-box}
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: #F5F7FA;
+      overflow: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .app-wrapper {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+
+    iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+      background: #F5F7FA;
+    }
+
+    /* Splash screen saat loading pertama */
+    .splash {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, #1976D2 0%, #0D47A1 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      z-index: 10;
+      transition: opacity .4s ease;
+    }
+    .splash.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+    .splash-logo {
+      width: 88px;
+      height: 88px;
+      border-radius: 22px;
+      background: rgba(255,255,255,.18);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -1px;
+      box-shadow: 0 8px 24px rgba(0,0,0,.2);
+    }
+    .splash-title {
+      color: #fff;
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -.3px;
+    }
+    .splash-sub {
+      color: rgba(255,255,255,.75);
+      font-size: 12px;
+      font-weight: 400;
+      margin-top: -10px;
+    }
+    .splash-spinner {
+      width: 28px;
+      height: 28px;
+      border: 3px solid rgba(255,255,255,.25);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: splashSpin .8s linear infinite;
+      margin-top: 12px;
+    }
+    @keyframes splashSpin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-wrapper">
+    <div class="splash" id="splash">
+      <div class="splash-logo">RT</div>
+      <div class="splash-title">RT Digital</div>
+      <div class="splash-sub">Sistem Informasi Warga</div>
+      <div class="splash-spinner"></div>
+    </div>
+
+    <iframe id="appFrame"
+            src="https://script.google.com/macros/s/AKfycbwG7Uzrv0gyqNM78D6cvBvs1tjAn937XyAqUb6cTXrGWN RjilwaftnYo2QPKQ24h1t/exec"
+            allow="fullscreen; clipboard-read; clipboard-write">
+    </iframe>
+  </div>
+
+  <script>
+    // Sembunyikan splash setelah iframe load (maks 4 detik)
+    const splash = document.getElementById('splash');
+    const frame = document.getElementById('appFrame');
+
+    let splashHidden = false;
+    function hideSplash() {
+      if (splashHidden) return;
+      splashHidden = true;
+      splash.classList.add('hidden');
+      setTimeout(() => splash.remove(), 500);
+    }
+
+    frame.addEventListener('load', () => {
+      setTimeout(hideSplash, 400);
+    });
+
+    // Fallback: kalau iframe lambat, paksa hilang setelah 4 detik
+    setTimeout(hideSplash, 4000);
+
+    // Register service worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then(reg => console.log('[PWA] SW terdaftar:', reg.scope))
+          .catch(err => console.log('[PWA] SW gagal:', err));
+      });
+    }
+  </script>
+</body>
+</html>
